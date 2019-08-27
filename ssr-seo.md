@@ -184,6 +184,8 @@ npm next export
 
 The `index.html` page will be present in the `out` directory by default.
 
+You can find the full source code for this example [here](https://github.com/sohamkamani/butter-seo-ssg-examples/tree/master/next-example)
+
 ### Gatsby
 
 Things are much easier with Gatsby, since the SEO component is already prepared for you with the standard Gatsby project structure in `src/components/seo.js`. 
@@ -253,6 +255,8 @@ export default IndexPage
 ```
 
 This will lead to a similar generated `index.html` , which you can verify by running `npm run build` and viewing the `public/index.html` file.
+
+You can find the full source code for this example [here](https://github.com/sohamkamani/butter-seo-ssg-examples/tree/master/gatsby-example)
 
 ## SEO strategies for Jekyll sites
 
@@ -335,6 +339,7 @@ In Jekyll, the `post` layout mentioned in he header above inherits from the `def
 
 If you want to view or verify the HTML on your Jekyll site, run the `jekyll build` command and view the respective HTML files within the `_site` folder.
 
+You can find the full source code for this example [here](https://github.com/sohamkamani/butter-seo-ssg-examples/tree/master/jekyll-example)
 
 ## SEO strategies for Hugo based sites
 
@@ -370,6 +375,8 @@ draft: true
 ```
 
 In order to verify the source code, you can run `hugo -D` and see you posts HTML file in `public/posts/<post-title>/index.html`
+
+You can find the full source code for this example [here](https://github.com/sohamkamani/butter-seo-ssg-examples/tree/master/hugo-example)
 
 ## Conclusion
 
