@@ -3,62 +3,21 @@ import PropTypes from 'prop-types'
 import Helmet from 'react-helmet'
 import Head from 'next/head'
 
-function SEO ({ description, lang, meta, title }) {
-  const metaDescription = description
-
+function SEO ({ description, title }) {
   return (
     <Head>
-      <Helmet
-        htmlAttributes={{
-          lang
-        }}
-        title={title}
-        meta={[
-          {
-            name: 'description',
-            content: metaDescription
-          },
-          {
-            property: 'og:title',
-            content: title
-          },
-          {
-            property: 'og:description',
-            content: metaDescription
-          },
-          {
-            property: 'og:type',
-            content: 'website'
-          },
-          {
-            name: 'twitter:card',
-            content: 'summary'
-          },
-          {
-            name: 'twitter:title',
-            content: title
-          },
-          {
-            name: 'twitter:description',
-            content: metaDescription
-          }
-        ].concat(meta)}
-      />
+      <title>{title}</title>
+      <meta name='description' content={description} />
+
+      <meta name='og:type' content='website' />
+      <meta name='og:title' content={title} />
+      <meta name='og:description' content={description} />
+
+      <meta name='twitter:card' content='summary' />
+      <meta name='twitter:title' content={title} />
+      <meta name='twitter:description' content={description} />
     </Head>
   )
-}
-
-SEO.defaultProps = {
-  lang: 'en',
-  meta: [],
-  description: ''
-}
-
-SEO.propTypes = {
-  description: PropTypes.string,
-  lang: PropTypes.string,
-  meta: PropTypes.arrayOf(PropTypes.object),
-  title: PropTypes.string.isRequired
 }
 
 export default SEO

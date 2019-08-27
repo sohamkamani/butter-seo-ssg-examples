@@ -103,34 +103,281 @@ SSGs like [Gatsby](https://www.gatsbyjs.org/) and [Next.js](https://nextjs.org/)
 
 For these frameworks, the initial page HTML is generated on the server side and the React library, along with the application code is loaded later. We cannot just put in an HTML `head` element in our React components, since a component may be rendered multiple times depending on your application code, and this could lead to duplicate changes if each component needs to manipulate the pages `head` element differently.
 
-Using libraries like [React Helmet](https://github.com/nfl/react-helmet) save you from the trouble of maintaining code for these cases, and takes care of updating the document head from any of your React components without duplication.
+Using libraries like [React Helmet](https://github.com/nfl/react-helmet), or [next/head](https://nextjs.org/docs#populating-head) save you from the trouble of maintaining code for these cases, and takes care of updating the document head from any of your React components without duplication.
 
-### Using React-helmet in your code
+### Next.js
 
+You can use the `next/head` submodule to encapsulate modifications to the head element. Normally, you would have an `SEO` react component that would do this for you:
 
+```jsx
+// components/seo.js
+import React from 'react'
+import PropTypes from 'prop-types'
+import Helmet from 'react-helmet'
+import Head from 'next/head'
 
-### The React-helmet library
+function SEO ({ description, title }) {
+  return (
+    <Head>
+      <title>{title}</title>
+      <meta name='description' content={description} />
 
-How to integrate SEO tags into your HTML head element using [React Helmet](https://github.com/nfl/react-helmet)
+      <meta name='og:type' content='website' />
+      <meta name='og:title' content={title} />
+      <meta name='og:description' content={description} />
 
-- Adding meta titles and descriptions in React
-- Adding open graph image and summary tags (for showing rich formatted cards when sharing on twitter or facebook)
-- How to verify the source code for pages once they are generated
+      <meta name='twitter:card' content='summary' />
+      <meta name='twitter:title' content={title} />
+      <meta name='twitter:description' content={description} />
+    </Head>
+  )
+}
+
+export default SEO
+```
+
+Next, we would use this component in each of our pages. We can add this anywhere in our page component:
+
+```jsx
+// pages/index.js
+import SEO from '../components/seo'
+
+const Index = () => (
+  <div>
+    <SEO title='sample title' description='sample description' />
+    <p>Hello Next.js</p>
+  </div>
+)
+
+export default Index
+```
+
+This will result in the following output HTML for the generated `index.html` page:
+
+```html
+<!-- ... -->
+
+<head>
+        <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1" />
+        <meta charSet="utf-8" />
+        <title>sample title</title>
+        <meta name="description" content="sample description" />
+        <meta name="og:type" content="website" />
+        <meta name="og:title" content="sample title" />
+        <meta name="og:description" content="sample description" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="sample title" />
+        <meta name="twitter:description" content="sample description" />
+        <meta name="next-head-count" content="10" />
+        <!-- ... -->
+</head>
+
+<!-- ... -->
+```
+
+You can verify the source code by running the commands:
+
+```
+npx next build
+npm next export
+```
+
+The `index.html` page will be present in the `out` directory by default.
+
+### Gatsby
+
+Things are much easier with Gatsby, since the SEO component is already prepared for you with the standard Gatsby project structure in `src/components/seo.js`. 
+
+This component makes use of the React Helmet library to generate the `head` HTML tags:
+
+```jsx
+<Helmet
+    htmlAttributes={{
+      lang
+    }}
+    title={title}
+    titleTemplate={`%s | ${site.siteMetadata.title}`}
+    meta={[
+      {
+        name: `description`,
+        content: metaDescription
+      },
+      {
+        property: `og:title`,
+        content: title
+      },
+      {
+        property: `og:description`,
+        content: metaDescription
+      },
+      {
+        property: `og:type`,
+        content: `website`
+      },
+      {
+        name: `twitter:card`,
+        content: `summary`
+      },
+      {
+        name: `twitter:creator`,
+        content: site.siteMetadata.author
+      },
+      {
+        name: `twitter:title`,
+        content: title
+      },
+      {
+        name: `twitter:description`,
+        content: metaDescription
+      }
+    ].concat(meta)}
+  />
+```
+
+The SEO component can be used (and is, by default) in the `src/pages/index.js` file:
+
+```jsx
+import React from "react"
+
+// ...
+import SEO from "../components/seo"
+
+const IndexPage = () => (
+  <Layout>
+    <SEO title="Home" />
+    {/* ... */}
+  </Layout>
+)
+
+export default IndexPage
+```
+
+This will lead to a similar generated `index.html` , which you can verify by running `npm run build` and viewing the `public/index.html` file.
 
 ## SEO strategies for Jekyll sites
 
-Where they  shd  sjskn
+[Jekyll](https://jekyllrb.com) is a popular SSG that works using ERB (embedded ruby) templates and layouts to customize each page.
 
-- Using ERB templates to define the meta titles and descriptions in Jekylls head element
-- Adding open graph image and summary tags (for showing rich formatted cards when sharing on twitter or facebook)
-- How to verify the source code for pages once they are generated
+You can follow along the [getting started tutorial](https://jekyllrb.com/docs/) to get a starter site up and running. In order to add SEO specific tags to you Jekyll site, you will need to modify the default template.
+
+Create the file `_layouts/default.html` that will contain the base template for all our pages:
+
+```html
+<!doctype html>
+<html lang="en">
+
+<head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="/css/style.css">
+
+        <!-- We add the SEO tags here -->
+        <title>{{ page.title }}</title>
+        <meta name="description" content="{{ page.description }}" />
+        <meta name="og:type" content="website" />
+        <meta name="og:title" content="{{ page.title }}" />
+        <meta name="og:description" content="{{ page.description }}" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="{{ page.title }}" />
+        <meta name="twitter:description" content="{{ page.description }}" />
+        <meta name="next-head-count" content="10" />
+</head>
+
+<body>
+        <nav>
+                <a href="/">Home</a>
+                <a href="/blog/">Blog</a>
+        </nav>
+        <h1>{{ page.title }}</h1>
+        <section>
+                {{ content }}
+        </section>
+        <footer>
+                &copy; to me
+        </footer>
+</body>
+
+</html>
+```
+
+In the above template, the `page.title` and `page.description` are template variables and differ for each page. In Jekyll, each page is compiled from a markdown file. The header of the markdown file will contain the `title` and `description` variables that will be used in the template.
+
+Lets take a look at a sample markdown file in the `_posts` directory:
+
+```
+---
+layout: post
+title:  "Welcome to Jekyll!"
+description: "Sample description"
+date:   2019-08-28 00:22:09 +0530
+categories: jekyll update
+---
+
+Some page content...
+...
+...
+...
+
+```
+
+In Jekyll, the `post` layout mentioned in he header above inherits from the `default` layout we just define. This would give us the required meta tags in our generated HTML:
+
+```html
+<title>Welcome to Jekyll!</title>
+<meta name="description" content="Sample description" />
+<meta name="og:type" content="website" />
+<meta name="og:title" content="Welcome to Jekyll!" />
+<meta name="og:description" content="Sample description" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Welcome to Jekyll!" />
+<meta name="twitter:description" content="Sample description" />
+<meta name="next-head-count" content="10" />
+```
+
+If you want to view or verify the HTML on your Jekyll site, run the `jekyll build` command and view the respective HTML files within the `_site` folder.
+
 
 ## SEO strategies for Hugo based sites
 
-- Using Hugos Go templates to define the meta titles and descriptions in Jekylls head element
-- Adding open graph image and summary tags (for showing rich formatted cards when sharing on twitter or facebook)
-- How to verify the source code for pages once they are generated
+[Hugo](https://gohugo.io) is one of the fastest SSGs powered by Go (and which consequently uses Go templating). If you follow along with the [quick start guide](https://gohugo.io/getting-started/quick-start/), you should have a basic site up and running.
+
+Hugo has most of the SEO requirements built in, which means you won't have to set anything up to generate the title meta tags discussed for the previous SSGs.
+
+You can generate a new page using the command:
+
+```
+hugo new posts/<post-title>.md
+```
+
+This should generate a markdown file with the header:
+
+```
+---
+title: "My First Post"
+date: 2019-08-28T01:29:26+05:30
+draft: true
+---
+```
+
+This will cover all the SEO tags except for the description tags. You can fill this in by adding a `description` key to the post header:
+
+```
+---
+title: "My Sample Post"
+date: 2019-08-28T01:29:26+05:30
+description: "My Sample Description"
+draft: true
+---
+```
+
+In order to verify the source code, you can run `hugo -D` and see you posts HTML file in `public/posts/<post-title>/index.html`
 
 ## Conclusion
 
-Recap of the tasks we performed, and a few sentences on how these concepts can be carried forward to other SSGs of the readers choice.
+In this article, we covered the basics of SEO and SSGs, and the concepts needed in order to integrate SEO into your site.
+
+We saw how to apply SEO in a number of SSGs like Gatsby, Next, Jekyll, and Hugo, but this can be applied to any SSG of your choice. The two things you need to look out for are:
+
+1. A way to modify the SSGs HTML tags (specifically in the head)
+2. A way to change the HTML tags for individual pages, while maintaining a common template.
+
+I hope this post has helped you understand the importance of SEO and how to integrate it into the SSG of your choice.
